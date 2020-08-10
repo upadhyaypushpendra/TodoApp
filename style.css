@@ -1,0 +1,122 @@
+*, *::before, *::after {
+    box-sizing: border-box
+}
+
+html {
+    font-family: sans-serif;
+    font-size: 1rem;
+    color: black;
+}
+body{
+    background-image: url("./images/3604545.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: 100% 100%;
+
+}
+/* scrollbar */
+body::-webkit-scrollbar{
+    width: 18px;
+    background-color: transparent;
+}
+body::-webkit-scrollbar-thumb{
+    background-color: #395a01;
+    border-radius: 18px;
+}
+body::-webkit-scrollbar-track{
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.8);
+    background-color: #F5F5F5;
+}
+/* scrollbar ends */
+#root {
+    background-color: transparent;
+    max-width: 450px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+form {
+    display: flex;
+    margin-bottom: 2rem;
+    background: transparent;
+}
+
+[type="text"], button {
+    display: inline-block;
+    -webkit-appearance: none;
+    padding: .5rem 1rem;
+    font-size: 1rem;
+    border: 1px solid black;
+    border-radius: 4px;
+    background: transparent;
+}
+
+button {
+    cursor: pointer;
+    background: transparent;
+    color: black;
+    border: 1px solid black;
+    margin: 0 .5rem;
+}
+button:hover{
+    background-color: #639502;
+}
+button:active{
+    background-color: #395a01;
+}
+[type="text"] {
+    width: 100%;
+}
+
+[type="text"]:active, [type="text"]:focus {
+    outline: 0;
+    border: 1px solid #007bff;
+}
+
+[type="checkbox"] {
+    margin-right: 1rem;
+    font-size: 2rem;
+    cursor: pointer;
+}
+
+h1 {
+    color: #222;
+    font-size: 50px;
+    font-family: "Courier New" , sans-serif , Arial;
+}
+
+ul {
+    padding: 0;
+}
+
+li {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: transparent;
+    border-radius: 4px;
+    border: 1px solid black;
+}
+
+li span {
+    display: inline-block;
+    padding: .5rem;
+    width: 250px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    font-weight: bold;
+}
+
+li span:hover {
+    background: rgba(179, 215, 255, 0.52);
+}
+
+li span:focus {
+    outline: 0;
+    border: 1px solid #007bff;
+    background: rgba(179, 207, 255, 0.52)
+}
+p {
+   font-weight: bold;
+}
