@@ -56,6 +56,12 @@ class View{
         this.title=this.createElement('h1');
         this.title.textContent='Todos';
 
+        // search field
+        this.searchInput = this.createElement('input');
+        this.searchInput.type='text';
+        this.searchInput.placeholder = 'Search Todo....';
+        this.searchInput.name = 'searchInput';
+
         // The form, with a [type="text"] input, and a submit button
         this.form = this.createElement('form');
 
@@ -74,7 +80,7 @@ class View{
         this.form.append(this.input,this.submitButton);
 
         // Append title form and todo-list to the app
-        this.app.append(this.title,this.form,this.todoList);
+        this.app.append(this.title,this,this.searchInput,this.form,this.todoList);
 
         this._tempTodoText='';
         this._initLocalListeners();
