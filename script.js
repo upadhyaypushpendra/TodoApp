@@ -80,7 +80,7 @@ class View{
         this.form.append(this.input,this.submitButton);
 
         // Append title form and todo-list to the app
-        this.app.append(this.title,this,this.searchInput,this.form,this.todoList);
+        this.app.append(this.title,this.searchInput,this.form,this.todoList);
 
         this._tempTodoText='';
         this._initLocalListeners();
