@@ -1,13 +1,50 @@
 /* Model class starts */
 class Model {
     constructor() {
-        this.todos= JSON.parse(localStorage.getItem('todos'))|| [] ;
+        this.todos= JSON.parse(localStorage.getItem('todoTasks'))|| [] ;
+        this.done = JSON.parse(localStorage.getItem('doneTasks')) || [];
+        this.activeNav = 1;
     }
     _commit(todos) {
-        //let completed = this.todos.filter(todo=> todo.complete);
         todos.sort(todo=> todo.complete ? 1 : -1);
         this.onTodoListChanged(todos);
-        localStorage.setItem('todos',JSON.stringify(todos));
+        localStorage.setItem('todoTasks',JSON.stringify(todos));
+    }
+    getTodos(){
+        return this.todos.filter(todo=> !todo.complete);
+    };
+    toggleNavigation(id){
+        this.activeNav = id;
+        if(this.activeNav ==="1"){
+            let todoTasks = this.todos.filter(todo=> !todo.complete);
+            this.onTodoListChanged(todoTasks);
+        } else {
+            let doneTasks = this.todos.filter(todo=> todo.complete);
+            this.onTodoListChanged(doneTasks);
+        }
+    };
+    searchTodo(searchText){
+        searchText = searchText.trim().toUpperCase();
+        if(searchText.length === 0){
+            this.onTodoListChanged(this.todos);
+            return;
+        }
+        let searchKeys = searchText.split(" ");
+        let numberOfKeys = searchKeys.length;
+        let text;
+
+        let searchResult = this.todos.filter(todo=> {
+            let hasKey = false;
+            text = todo.text.toUpperCase();
+            for(let i=0;i<numberOfKeys;i++){
+                if(text.includes(searchKeys[i])) {
+                    hasKey = true;
+                    break;
+                };
+            }
+            return hasKey;
+        });
+        this.onTodoListChanged(searchResult);
     }
     addTodo(todoText) {
         const len=this.todos.length;
@@ -52,15 +89,37 @@ class View{
         // The root Element
         this.app= this.getElement('#root');
 
+        // Header container
+        this.header = this.createElement('div',"row");
+
         //The title of the app
         this.title=this.createElement('h1');
         this.title.textContent='Todos';
 
         // search field
-        this.searchInput = this.createElement('input');
+        this.searchInput = this.createElement('input',"search-input");
         this.searchInput.type='text';
         this.searchInput.placeholder = 'Search Todo....';
         this.searchInput.name = 'searchInput';
+
+        // Append search input and title to the header
+        this.header.append(this.title,this.searchInput);
+
+        // Navigation Bar
+        this.navigation = this.createElement('nav','row');
+
+        // todo bar
+        this.todoNav = this.createElement('div','nav-bar-active');
+        this.todoNav.innerText = "Todo";
+        this.todoNav.id = "1";
+
+        // done bar
+        this.doneNav = this.createElement('div');
+        this.doneNav.innerText = "Done!";
+        this.doneNav.id = "2";
+
+        // Append nav bars to navigation
+        this.navigation.append(this.todoNav,this.doneNav);
 
         // The form, with a [type="text"] input, and a submit button
         this.form = this.createElement('form');
@@ -74,13 +133,19 @@ class View{
         this.submitButton.textContent='Add';
 
         // The visual representation of todo-list
+        //List container
+        this.listContainer = this.createElement('div',"list-container");
+
         this.todoList=this.createElement('ul','todo-list');
+
+        // Append list to list container
+        this.listContainer.append(this.todoList);
 
         //Append input and submit button to the form
         this.form.append(this.input,this.submitButton);
 
-        // Append title form and todo-list to the app
-        this.app.append(this.title,this.searchInput,this.form,this.todoList);
+        // Append title, serach-input ,form and list container to the app
+        this.app.append(this.header,this.navigation,this.form,this.listContainer);
 
         this._tempTodoText='';
         this._initLocalListeners();
@@ -138,6 +203,28 @@ class View{
 
 
     }
+    changeNavigation(id){
+        this.navigation.childNodes.forEach(node=>{
+            node.classList.remove("nav-bar-active");
+            if(node.id === id )  node.classList.add("nav-bar-active");
+        });
+    };
+    bindToggleNavigation(handler){
+        this.todoNav.addEventListener('click',event=>{
+            handler(event.target.id);
+            this.changeNavigation(event.target.id);
+        });
+        this.doneNav.addEventListener('click',event=>{
+            handler(event.target.id);
+            this.changeNavigation(event.target.id);
+        })
+        
+    };
+    bindSearchTodo(handler){
+        this.searchInput.addEventListener('input',event=>{
+            handler(event.target.value);
+        });
+    }
     bindAddTodo(handler){
         this.form.addEventListener('submit',event =>{
             event.preventDefault();
@@ -173,9 +260,9 @@ class View{
             }
         });
     }
-    createElement(tag,className){
+    createElement(tag,...classNames){
         const element=document.createElement(tag);
-        if (className) element.classList.add(className);
+        if (classNames.length > 0) element.classList.add(...classNames);
         return element;
     }
     getElement(selector){
@@ -189,15 +276,23 @@ class Controller{
     constructor(model,view) {
         this.model=model;
         this.view=view;
-        this.onTodoListChanged(this.model.todos);
+        this.onTodoListChanged(this.model.getTodos());
+        this.view.bindSearchTodo(this.handleSearchTodo);
         this.view.bindAddTodo(this.handleAddTodo);
         this.view.bindDeleteTodo(this.handleDeleteTodo);
         this.view.bindToggleTodo(this.handleToggleTodo);
-         this.view.bindEditTodo(this.handleEditTodo);
+        this.view.bindEditTodo(this.handleEditTodo);
+        this.view.bindToggleNavigation(this.handleToggleNavigation);
         this.model.bindTodoListChanged(this.onTodoListChanged);
     }
+    handleToggleNavigation =(id)=>{
+        this.model.toggleNavigation(id);
+    };
     onTodoListChanged = (todos)=> {
         this.view.displayTodos(todos);
+    }
+    handleSearchTodo = (searchText) =>{
+        this.model.searchTodo(searchText);
     }
     handleAddTodo = (todoText) =>{
         this.model.addTodo(todoText);
