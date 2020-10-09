@@ -4,13 +4,15 @@ class Model {
         this.todos= JSON.parse(localStorage.getItem('todos'))|| [] ;
     }
     _commit(todos) {
+        //let completed = this.todos.filter(todo=> todo.complete);
+        todos.sort(todo=> todo.complete ? 1 : -1);
         this.onTodoListChanged(todos);
         localStorage.setItem('todos',JSON.stringify(todos));
     }
     addTodo(todoText) {
         const len=this.todos.length;
         const todo={
-            id : len > 0 ? this.todos[len-1].id+1 : 1,
+            id :    Date.now(),
             text : todoText,
             complete : false
         }
