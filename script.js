@@ -2,31 +2,26 @@
 class Model {
     constructor() {
         this.todos= JSON.parse(localStorage.getItem('todoTasks'))|| [] ;
-        this.done = JSON.parse(localStorage.getItem('doneTasks')) || [];
-        this.activeNav = 1;
+        this.activeNav = "1";
     }
     _commit(todos) {
-        todos.sort(todo=> todo.complete ? 1 : -1);
-        this.onTodoListChanged(todos);
+        this.onTodoListChanged(this.getTodoTasks());
+        this.onDoneListChanged(this.getDoneTasks());
         localStorage.setItem('todoTasks',JSON.stringify(todos));
     }
-    getTodos(){
+    getTodoTasks(){
         return this.todos.filter(todo=> !todo.complete);
+    };
+    getDoneTasks(){
+        return this.todos.filter(todo=> todo.complete);
     };
     toggleNavigation(id){
         this.activeNav = id;
-        if(this.activeNav ==="1"){
-            let todoTasks = this.todos.filter(todo=> !todo.complete);
-            this.onTodoListChanged(todoTasks);
-        } else {
-            let doneTasks = this.todos.filter(todo=> todo.complete);
-            this.onTodoListChanged(doneTasks);
-        }
     };
     searchTodo(searchText){
         searchText = searchText.trim().toUpperCase();
         if(searchText.length === 0){
-            this.onTodoListChanged(this.todos);
+            this.onTodoListChanged(this.getTodoTasks());
             return;
         }
         let searchKeys = searchText.split(" ");
@@ -34,6 +29,7 @@ class Model {
         let text;
 
         let searchResult = this.todos.filter(todo=> {
+            if(!todo.complete) return false;
             let hasKey = false;
             text = todo.text.toUpperCase();
             for(let i=0;i<numberOfKeys;i++){
@@ -44,7 +40,7 @@ class Model {
             }
             return hasKey;
         });
-        this.onTodoListChanged(searchResult);
+        this.activeNav ==="1" ? this.onTodoListChanged(searchResult) : this.onDoneListChanged(searchResult);
     }
     addTodo(todoText) {
         const len=this.todos.length;
@@ -55,29 +51,36 @@ class Model {
         }
         this.todos.push(todo);
         this._commit(this.todos);
-        this.onTodoListChanged(this.todos);
+        this.onTodoListChanged(this.getTodoTasks());        
     }
     deleteTodo(id){
         this.todos= this.todos.filter((todo)=> todo.id !== id);
         this._commit(this.todos);
-        this.onTodoListChanged(this.todos);
+        this.onTodoListChanged(this.getTodoTasks());
+        this.onDoneListChanged(this.getDoneTasks());
+
     }
     editTodo(id,updatedText){
         this.todos = this.todos.map((todo) =>
             todo.id === id ? {id: todo.id, text: updatedText, complete: todo.complete} : todo,
         )
         this._commit(this.todos);
-        this.onTodoListChanged(this.todos);
+        this.onTodoListChanged(this.getTodoTasks());
+        this.onDoneListChanged(this.getDoneTasks());        
     }
     toggleTodo(id){
         this.todos = this.todos.map((todo) =>
             todo.id === id ? {id: todo.id, text: todo.text, complete: !todo.complete} : todo,
         )
         this._commit(this.todos);
-        this.onTodoListChanged(this.todos);
+        this.onTodoListChanged(this.getTodoTasks());
+        this.onDoneListChanged(this.getDoneTasks());
     }
     bindTodoListChanged(callback){
         this.onTodoListChanged = callback;
+    }
+    bindDoneListChanged(callback){
+        this.onDoneListChanged = callback;
     }
 
 }
@@ -136,10 +139,15 @@ class View{
         //List container
         this.listContainer = this.createElement('div',"list-container");
 
+        // todo tasks list
         this.todoList=this.createElement('ul','todo-list');
 
+        // done task list
+        this.doneList=this.createElement('ul','todo-list');
+        this.doneList.style.display = 'none';
+
         // Append list to list container
-        this.listContainer.append(this.todoList);
+        this.listContainer.append(this.todoList,this.doneList);
 
         //Append input and submit button to the form
         this.form.append(this.input,this.submitButton);
@@ -163,7 +171,7 @@ class View{
     _resetInput(){
         this.input.value = '';
     }
-    displayTodos(todos){
+    displayTodoTasks(todos){        
         // Delete all Nodes
         while(this.todoList.firstChild){
             this.todoList.removeChild(this.todoList.firstChild);
@@ -200,10 +208,54 @@ class View{
                 this.todoList.append(li);
             })
         }
+    }
+    displayDoneTasks(doneTasks){        
+        // Delete all Nodes
+        while(this.doneList.firstChild){
+            this.doneList.removeChild(this.doneList.firstChild);
+        }
+        if(doneTasks.length == 0){
+            const p=this.createElement('p');
+            p.textContent='Nothing here !!'
+            this.doneList.append(p);
+        }else {
+            doneTasks.forEach(task=>{
+                const li = this.createElement('li');
+                li.id=task.id;
 
+                const  checkBox = this.createElement('input');
+                checkBox.type='checkbox';
+                checkBox.checked = task.complete;
 
+                const  span = this.createElement('span','editable');
+                span.contentEditable = true;
+
+                if(task.complete){
+                  const strike=this.createElement('s');
+                  strike.textContent = task.text;
+                  span.append(strike);
+                } else{
+                    span.textContent = task.text;
+                }
+
+                const deleteButton = this.createElement('button','delete');
+                deleteButton.textContent = 'Delete';
+
+                li.append(checkBox,span,deleteButton);
+
+                this.doneList.append(li);
+            });
+        }
     }
     changeNavigation(id){
+        if(id === "1") {
+            this.todoList.style.display = "block";
+            this.doneList.style.display = "none"
+        } else {
+            this.todoList.style.display = "none";
+            this.doneList.style.display = "block"
+        }
+        if(id === "1") this.todoList.style.display = "block";
         this.navigation.childNodes.forEach(node=>{
             node.classList.remove("nav-bar-active");
             if(node.id === id )  node.classList.add("nav-bar-active");
@@ -211,11 +263,11 @@ class View{
     };
     bindToggleNavigation(handler){
         this.todoNav.addEventListener('click',event=>{
-            handler(event.target.id);
+            //handler(event.target.id);
             this.changeNavigation(event.target.id);
         });
         this.doneNav.addEventListener('click',event=>{
-            handler(event.target.id);
+            //handler(event.target.id);
             this.changeNavigation(event.target.id);
         })
         
@@ -276,7 +328,8 @@ class Controller{
     constructor(model,view) {
         this.model=model;
         this.view=view;
-        this.onTodoListChanged(this.model.getTodos());
+        this.onTodoListChanged(this.model.getTodoTasks());
+        this.onDoneListChanged(this.model.getDoneTasks());
         this.view.bindSearchTodo(this.handleSearchTodo);
         this.view.bindAddTodo(this.handleAddTodo);
         this.view.bindDeleteTodo(this.handleDeleteTodo);
@@ -284,12 +337,16 @@ class Controller{
         this.view.bindEditTodo(this.handleEditTodo);
         this.view.bindToggleNavigation(this.handleToggleNavigation);
         this.model.bindTodoListChanged(this.onTodoListChanged);
+        this.model.bindDoneListChanged(this.onDoneListChanged);
     }
     handleToggleNavigation =(id)=>{
         this.model.toggleNavigation(id);
     };
-    onTodoListChanged = (todos)=> {
-        this.view.displayTodos(todos);
+    onDoneListChanged = (doneTasks)=> {
+        this.view.displayDoneTasks(doneTasks);
+    }
+    onTodoListChanged = (todoTasks)=> {
+        this.view.displayTodoTasks(todoTasks);
     }
     handleSearchTodo = (searchText) =>{
         this.model.searchTodo(searchText);
