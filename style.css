@@ -129,6 +129,7 @@ ul {
 }
 
 li {
+    color: white;
     display: flex;
     align-items: center;
     padding: 1rem;
@@ -140,6 +141,7 @@ li {
 }
 
 li span {
+    color: white;
     display: inline-block;
     padding: .5rem;
     width: 250px;
@@ -159,4 +161,5 @@ li span:focus {
 }
 p {
    font-weight: bold;
+   color: white;
 }
