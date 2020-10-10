@@ -17,6 +17,7 @@ class Model {
     };
     toggleNavigation(id){
         this.activeNav = id;
+        this.activeNav ==="1" ? this.onTodoListChanged(this.getTodoTasks()) : this.onDoneListChanged(this.getDoneTasks());
     };
     searchTodo(searchText){
         searchText = searchText.trim().toUpperCase();
@@ -28,8 +29,7 @@ class Model {
         let numberOfKeys = searchKeys.length;
         let text;
 
-        let searchResult = this.todos.filter(todo=> {
-            if(!todo.complete) return false;
+        let searchResult = this.todos.filter(todo=> {            
             let hasKey = false;
             text = todo.text.toUpperCase();
             for(let i=0;i<numberOfKeys;i++){
@@ -263,11 +263,11 @@ class View{
     };
     bindToggleNavigation(handler){
         this.todoNav.addEventListener('click',event=>{
-            //handler(event.target.id);
+            handler(event.target.id);
             this.changeNavigation(event.target.id);
         });
         this.doneNav.addEventListener('click',event=>{
-            //handler(event.target.id);
+            handler(event.target.id);
             this.changeNavigation(event.target.id);
         })
         
