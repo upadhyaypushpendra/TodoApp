@@ -5,7 +5,7 @@ window.addEventListener('DOMContentLoaded',()=>{
 
     let puGitButtonDiv = document.createElement('div');
     puGitButtonDiv.style.backgroundImage = "url(https://i.ibb.co/M5XB8jS/git.png)";
-    puGitButtonDiv.style.backgroundColor = "transparent";
+    puGitButtonDiv.style.backgroundColor = "white";
     puGitButtonDiv.style.position = "absolute";
     puGitButtonDiv.style.right = "30px";
     puGitButtonDiv.style.bottom = "30px";
@@ -22,13 +22,13 @@ window.addEventListener('DOMContentLoaded',()=>{
     document.body.appendChild(puGitLink);
 
     let puLinkedInLink = document.createElement("a");
-    puLinkedInLink.setAttribute("href","https://LinkedInhub.com/upadhyaypushpendra");
+    puLinkedInLink.setAttribute("href","https://www.linkedin.com/in/pushpendra-upadhyay-3440ab174/");
     puLinkedInLink.setAttribute("target","_blank");
 
 
     let puLinkedInButtonDiv = document.createElement('div');
     puLinkedInButtonDiv.style.backgroundImage = `url("https://i.ibb.co/NW6S90t/linkedIn.png")`;
-    puGitButtonDiv.style.backgroundColor = "transparent";
+    puLinkedInButtonDiv.style.backgroundColor = "white";
     puLinkedInButtonDiv.style.position = "absolute";
     puLinkedInButtonDiv.style.right = "80px";
     puLinkedInButtonDiv.style.bottom = "30px";
